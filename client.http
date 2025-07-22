@@ -1,0 +1,57 @@
+@baseUrl = http://localhost:3333
+
+###Users
+
+###Authentication
+
+POST {{baseUrl}}/auth
+Content-Type: application/json
+
+{
+    "name": "Felipe",
+    "password": "123"
+}
+
+### Register
+
+POST {{baseUrl}}/register
+content-type: application/json
+
+{
+    "name": "Felipe",
+    "password": "123"
+}
+
+###Recipes
+
+###Create
+
+POST {{baseUrl}}/recipes
+content-type: application/json
+
+{
+    "title": "Morango do amor tradicional",
+    "price": 10
+}
+
+###Fetch Recipes
+
+GET {{baseUrl}}/recipes
+
+###Orders
+
+###Create
+
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+    "idRecipe": "d7db6005-8acd-4220-a19f-757e36739e57",
+    "customerName": "Felipe",
+    "quantity": 2,
+    "status": "paid"
+}
+
+###Fetch
+
+GET {{baseUrl}}/orders

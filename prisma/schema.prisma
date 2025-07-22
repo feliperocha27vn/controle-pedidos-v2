@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id           String @id @default(uuid())
+  name         String
+  passwordHash String @map("password_hash")
+
+  @@map("users")
+}
+
+model Recipes {
+  id      String   @id @default(uuid())
+  title   String
+  price   Decimal
+  created DateTime @default(now())
+  Orders  Orders[]
+
+  @@map("recipes")
+}
+
+model Orders {
+  id           String  @id @default(uuid())
+  customerName String  @map("customer_name")
+  quantity     Int
+  totalAmount  Decimal
+  status       String  @default("pending")
+
+  recipe    Recipes @relation(fields: [recipesId], references: [id])
+  recipesId String  @map("recipes_id")
+
+  createdAt DateTime @default(now())
+
+  @@map("orders")
+}
