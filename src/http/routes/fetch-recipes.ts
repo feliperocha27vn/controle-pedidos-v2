@@ -5,8 +5,6 @@ export const fetchRecipes: FastifyPluginAsyncZod = async app => {
   app.get('/recipes', async (_, reply) => {
     const recipes = await prisma.recipes.findMany()
 
-    reply.status(201).send({
-      recipes,
-    })
+    reply.status(201).send(recipes)
   })
 }

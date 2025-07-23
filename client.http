@@ -38,8 +38,7 @@ content-type: application/json
 
 GET {{baseUrl}}/recipes
 
-###Orders
-
+Orders
 ###Create
 
 POST {{baseUrl}}/orders
@@ -55,3 +54,11 @@ Content-Type: application/json
 ###Fetch
 
 GET {{baseUrl}}/orders
+
+### Get Total Amount Sales
+GET {{baseUrl}}/orders/total
+
+### Get total sales pending
+GET {{baseUrl}}/orders/pending
+### Get total sales paid
+GET {{baseUrl}}/orders/paid

@@ -9,7 +9,7 @@ export const createNewRecipe: FastifyPluginAsyncZod = async app => {
       schema: {
         body: z.object({
           title: z.string(),
-          price: z.number(),
+          price: z.coerce.number(),
         }),
       },
     },

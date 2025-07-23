@@ -5,6 +5,9 @@ import { createNewRecipe } from './routes/create-new-recipe.ts'
 import { fetchOrders } from './routes/fetch-orders.ts'
 import { fetchRecipes } from './routes/fetch-recipes.ts'
 import { register } from './routes/register-user.ts'
+import { totalOrdersPaid } from './routes/total-sales-paid.ts'
+import { totalOrdersPending } from './routes/total-sales-pending.ts'
+import { totalOrders } from './routes/total-sales.ts'
 
 export function appRoutes(app: FastifyInstance) {
   // Users
@@ -16,4 +19,7 @@ export function appRoutes(app: FastifyInstance) {
   // Orders
   app.register(createNewOrder)
   app.register(fetchOrders)
+  app.register(totalOrders)
+  app.register(totalOrdersPending)
+  app.register(totalOrdersPaid)
 }

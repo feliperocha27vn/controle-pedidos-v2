@@ -10,7 +10,7 @@ export const createNewOrder: FastifyPluginAsyncZod = async app => {
         body: z.object({
           idRecipe: z.uuid(),
           customerName: z.string(),
-          quantity: z.number(),
+          quantity: z.coerce.number(),
           status: z.enum(['pending', 'paid']),
         }),
       },
