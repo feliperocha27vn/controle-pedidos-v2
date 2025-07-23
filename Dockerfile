@@ -7,7 +7,6 @@ COPY package*.json ./
 RUN npm i
 
 COPY . .
-COPY .env ./
 COPY prisma ./
 
 RUN npm ci --only=production cache clear
