@@ -21,4 +21,4 @@ COPY --from=build /usr/src/prisma ./prisma
 
 EXPOSE 3333
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+CMD ["sh", "-c", "echo DATABASE_URL=$DATABASE_URL && env && npx prisma migrate deploy && npm run start"]
