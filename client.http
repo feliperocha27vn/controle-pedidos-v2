@@ -1,4 +1,4 @@
-@baseUrl = http://go00o04wk8oc4w8s4so40wco.191.252.177.27.sslip.io:3333
+@baseUrl = http://localhost:3333
 
 ###Users
 
@@ -45,11 +45,24 @@ POST {{baseUrl}}/orders
 Content-Type: application/json
 
 {
-    "idRecipe": "d7db6005-8acd-4220-a19f-757e36739e57",
+    "idRecipe": "e030123c-ff85-4be6-b36b-03ea05d06253",
     "customerName": "Felipe",
     "quantity": 2,
+    "status": "pending"
+}
+
+### Change order status
+PATCH  {{baseUrl}}/order/e6b87385-5924-4e67-b4fc-d42f7bcb3f38/change-status
+Content-Type: application/json
+
+{
+    "orderId": "e6b87385-5924-4e67-b4fc-d42f7bcb3f38",
     "status": "paid"
 }
+
+### Get by id
+GET  {{baseUrl}}/order/e6b87385-5924-4e67-b4fc-d42f7bcb3f38
+Content-Type: application/json
 
 ###Fetch
 

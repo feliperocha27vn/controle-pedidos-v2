@@ -1,9 +1,11 @@
 import type { FastifyInstance } from 'fastify'
 import { authentication } from './routes/authentication.ts'
+import { changeOrderStatus } from './routes/change-order-status.ts'
 import { createNewOrder } from './routes/create-new-order.ts'
 import { createNewRecipe } from './routes/create-new-recipe.ts'
 import { fetchOrders } from './routes/fetch-orders.ts'
 import { fetchRecipes } from './routes/fetch-recipes.ts'
+import { getOrderById } from './routes/get-order-by-id.ts'
 import { register } from './routes/register-user.ts'
 import { totalOrdersPaid } from './routes/total-sales-paid.ts'
 import { totalOrdersPending } from './routes/total-sales-pending.ts'
@@ -22,4 +24,6 @@ export function appRoutes(app: FastifyInstance) {
   app.register(totalOrders)
   app.register(totalOrdersPending)
   app.register(totalOrdersPaid)
+  app.register(changeOrderStatus)
+  app.register(getOrderById)
 }

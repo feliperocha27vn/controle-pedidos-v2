@@ -11,7 +11,8 @@ import { appRoutes } from './http/app-routes.ts'
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
 app.register(fastifyCors, {
-  origin: true,
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 })
 
 app.setSerializerCompiler(serializerCompiler)
