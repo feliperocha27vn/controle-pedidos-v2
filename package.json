@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node --env-file=.env --experimental-strip-types --no-warnings --watch src/server.ts",
-    "start:production": "node --env-file=.env --experimental-strip-types --no-warnings src/server.ts"
+    "start:production": "node --experimental-strip-types --no-warnings src/server.ts"
   },
   "keywords": [],
   "author": "",
