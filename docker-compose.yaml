@@ -8,7 +8,6 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - DATABASE_URL=postgres://admin:adminpassword@postgresql:5432/controle_pedidos
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=adminpassword
       - POSTGRES_DB=controle_pedidos
