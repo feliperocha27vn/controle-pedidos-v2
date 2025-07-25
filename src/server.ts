@@ -9,14 +9,16 @@ import { env } from './env.ts'
 import { appRoutes } from './http/app-routes.ts'
 
 const app = fastify({
-  logger: false, // Desabilita logs para inicialização mais rápida
-  disableRequestLogging: true,
-  trustProxy: true
+  logger: {
+    level: 'info',
+  },
+  disableRequestLogging: false,
+  trustProxy: true,
 }).withTypeProvider<ZodTypeProvider>()
 
 app.register(fastifyCors, {
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 })
 
 app.setSerializerCompiler(serializerCompiler)
@@ -24,11 +26,40 @@ app.setValidatorCompiler(validatorCompiler)
 
 // Health check endpoint - simples e rápido
 app.get('/health', async () => {
-  return { status: 'ok', timestamp: Date.now() }
+  return {
+    status: 'ok',
+    timestamp: Date.now(),
+    port: env.PORT,
+    environment: process.env.NODE_ENV || 'development',
+  }
+})
+
+// Root endpoint para debug
+app.get('/', async () => {
+  return {
+    message: 'API Um Doce está funcionando!',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      auth: '/auth',
+      register: '/register',
+      recipes: '/recipes',
+      orders: '/orders',
+    },
+  }
 })
 
 // Registrar rotas da aplicação
 app.register(appRoutes)
+
+// Error handler
+app.setErrorHandler(async (error, request, reply) => {
+  console.error('Error:', error)
+  reply.status(500).send({
+    error: 'Internal Server Error',
+    message: error.message,
+  })
+})
 
 // Graceful shutdown handling
 const gracefulShutdown = async (signal: string) => {
@@ -54,6 +85,8 @@ const start = async () => {
       host: '0.0.0.0',
     })
     console.log(`🦅 Server is running on port ${env.PORT}`)
+    console.log(`📍 Health check: http://localhost:${env.PORT}/health`)
+    console.log(`🌐 API root: http://localhost:${env.PORT}/`)
   } catch (error) {
     console.error('Error starting server:', error)
     process.exit(1)

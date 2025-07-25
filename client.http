@@ -1,4 +1,13 @@
+# Configuração para desenvolvimento local
 @baseUrl = http://localhost:3333
+
+# Configuração para produção (Coolify)
+# Substitua pela URL do seu projeto no Coolify
+# @baseUrl = https://seu-projeto.coolify.app
+# @baseUrl = https://api.seudominio.com
+
+###Health Check
+GET {{baseUrl}}/health
 
 ###Users
 
@@ -24,54 +33,69 @@ content-type: application/json
 
 ###Recipes
 
-###Create
+### Create Recipe
 
 POST {{baseUrl}}/recipes
 content-type: application/json
 
 {
-    "title": "Morango do amor tradicional",
-    "price": 10
+    "name": "Bolo de Chocolate",
+    "description": "Delicioso bolo de chocolate",
+    "price": 25.50,
+    "category": "Bolos"
 }
 
-###Fetch Recipes
+### Get Recipes
 
 GET {{baseUrl}}/recipes
 
-Orders
-###Create
+###Orders
+
+### Create Order
 
 POST {{baseUrl}}/orders
-Content-Type: application/json
+content-type: application/json
 
 {
-    "idRecipe": "e030123c-ff85-4be6-b36b-03ea05d06253",
-    "customerName": "Felipe",
-    "quantity": 2,
-    "status": "pending"
+    "customerName": "João Silva",
+    "customerPhone": "(11) 99999-9999",
+    "items": [
+        {
+            "recipeId": "recipe-id-here",
+            "quantity": 2
+        }
+    ]
 }
 
-### Change order status
-PATCH  {{baseUrl}}/order/e6b87385-5924-4e67-b4fc-d42f7bcb3f38/change-status
-Content-Type: application/json
-
-{
-    "orderId": "e6b87385-5924-4e67-b4fc-d42f7bcb3f38",
-    "status": "paid"
-}
-
-### Get by id
-GET  {{baseUrl}}/order/e6b87385-5924-4e67-b4fc-d42f7bcb3f38
-Content-Type: application/json
-
-###Fetch
+### Get Orders
 
 GET {{baseUrl}}/orders
 
-### Get Total Amount Sales
+### Get Order by ID
+
+GET {{baseUrl}}/orders/order-id-here
+
+### Change Order Status
+
+PATCH {{baseUrl}}/orders/order-id-here/status
+content-type: application/json
+
+{
+    "status": "completed"
+}
+
+### Get Total Sales
+
 GET {{baseUrl}}/orders/total
 
-### Get total sales pending
-GET {{baseUrl}}/orders/pending
-### Get total sales paid
-GET {{baseUrl}}/orders/paid
+### Get Pending Sales
+
+GET {{baseUrl}}/orders/total/pending
+
+### Get Paid Sales
+
+GET {{baseUrl}}/orders/total/paid
+
+### Get Orders with Pagination
+
+GET {{baseUrl}}/orders/pagination?page=1&limit=10
