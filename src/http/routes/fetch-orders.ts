@@ -10,6 +10,7 @@ export const fetchOrders: FastifyPluginAsyncZod = async app => {
         quantity: true,
         totalAmount: true,
         status: true,
+        createdAt: true,
         recipe: {
           select: {
             title: true,
