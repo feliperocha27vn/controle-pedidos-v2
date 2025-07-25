@@ -28,6 +28,15 @@ services:
         condition: service_healthy
     ports:
       - "3333:3333"
+    environment:
+      - PORT=3333
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_USER=admin
+      - DB_PASSWORD=adminpassword
+      - DB_NAME=controle_pedidos
+      - DATABASE_URL=postgresql://admin:adminpassword@postgresql:5432/controle_pedidos
+      - NODE_ENV=production
     networks:
       - controle_pedidos_network
     healthcheck:
