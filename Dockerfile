@@ -9,17 +9,19 @@ WORKDIR /usr/src
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including dev dependencies for build)
-RUN npm ci --prefer-offline --no-audit
+# Install dependencies with optimizations
+RUN npm ci --prefer-offline --no-audit --no-fund
 
 # Copy source code and prisma schema
-COPY . .
+COPY src ./src
+COPY prisma ./prisma
 
 # Generate Prisma client
 RUN npx prisma generate
 
-# Install only production dependencies in a clean way
-RUN npm ci --only=production --prefer-offline --no-audit && npm cache clean --force
+# Clean install production dependencies
+RUN npm ci --only=production --prefer-offline --no-audit --no-fund && \
+    npm cache clean --force
 
 # Production stage
 FROM node:22.15-alpine3.20
@@ -38,9 +40,9 @@ COPY --from=build --chown=nodejs:nodejs /usr/src/package.json ./package.json
 COPY --from=build --chown=nodejs:nodejs /usr/src/node_modules ./node_modules 
 COPY --from=build --chown=nodejs:nodejs /usr/src/src ./src
 COPY --from=build --chown=nodejs:nodejs /usr/src/prisma ./prisma
-COPY --from=build --chown=nodejs:nodejs /usr/src/start.sh ./start.sh
 
-# Make start script executable
+# Copy and make start script executable
+COPY --chown=nodejs:nodejs start.sh ./start.sh
 RUN chmod +x start.sh
 
 # Switch to non-root user
@@ -49,8 +51,8 @@ USER nodejs
 # Expose port
 EXPOSE 3333
 
-# Add health check with more reasonable timeouts
-HEALTHCHECK --interval=15s --timeout=10s --start-period=60s --retries=3 \
+# Optimized health check
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3333/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
 
 # Use dumb-init for proper signal handling and run the application

@@ -9,43 +9,22 @@ import { env } from './env.ts'
 import { appRoutes } from './http/app-routes.ts'
 
 const app = fastify({
-  logger: {
-    level: 'info',
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-      },
-    },
-  },
+  logger: false, // Desabilita logs para inicialização mais rápida
+  disableRequestLogging: true,
+  trustProxy: true
 }).withTypeProvider<ZodTypeProvider>()
 
 app.register(fastifyCors, {
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 })
 
 app.setSerializerCompiler(serializerCompiler)
 app.setValidatorCompiler(validatorCompiler)
 
-// Health check endpoint - deve ser registrado primeiro
-app.get('/health', async (request, reply) => {
-  try {
-    // Teste básico de conectividade
-    return {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      memory: process.memoryUsage(),
-    }
-  } catch (error) {
-    reply.status(503)
-    return {
-      status: 'error',
-      timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error',
-    }
-  }
+// Health check endpoint - simples e rápido
+app.get('/health', async () => {
+  return { status: 'ok', timestamp: Date.now() }
 })
 
 // Registrar rotas da aplicação

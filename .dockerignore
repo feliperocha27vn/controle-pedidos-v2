@@ -17,3 +17,11 @@ coverage
 *.swp
 *.swo
 *~
+dist
+*.md
+.editorconfig
+.prettierrc
+.eslintrc*
+jest.config*
+*.test.ts
+*.spec.ts
