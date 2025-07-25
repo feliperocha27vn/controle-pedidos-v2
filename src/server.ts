@@ -8,7 +8,17 @@ import {
 import { env } from './env.ts'
 import { appRoutes } from './http/app-routes.ts'
 
-const app = fastify().withTypeProvider<ZodTypeProvider>()
+const app = fastify({
+  logger: {
+    level: 'info',
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+      },
+    },
+  },
+}).withTypeProvider<ZodTypeProvider>()
 
 app.register(fastifyCors, {
   origin: '*',
@@ -18,11 +28,27 @@ app.register(fastifyCors, {
 app.setSerializerCompiler(serializerCompiler)
 app.setValidatorCompiler(validatorCompiler)
 
-// Health check endpoint
+// Health check endpoint - deve ser registrado primeiro
 app.get('/health', async (request, reply) => {
-  return { status: 'ok', timestamp: new Date().toISOString() }
+  try {
+    // Teste básico de conectividade
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+    }
+  } catch (error) {
+    reply.status(503)
+    return {
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
 })
 
+// Registrar rotas da aplicação
 app.register(appRoutes)
 
 // Graceful shutdown handling
@@ -41,15 +67,18 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 
-app
-  .listen({
-    port: env.PORT,
-    host: '0.0.0.0',
-  })
-  .then(() => {
-    console.log('Server is running 🦅')
-  })
-  .catch(error => {
+// Start server with better error handling
+const start = async () => {
+  try {
+    await app.listen({
+      port: env.PORT,
+      host: '0.0.0.0',
+    })
+    console.log(`🦅 Server is running on port ${env.PORT}`)
+  } catch (error) {
     console.error('Error starting server:', error)
     process.exit(1)
-  })
+  }
+}
+
+start()
