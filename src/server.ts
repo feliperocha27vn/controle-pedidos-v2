@@ -14,11 +14,14 @@ const app = fastify({
   },
   disableRequestLogging: false,
   trustProxy: true,
+  connectionTimeout: 30000,
+  keepAliveTimeout: 65000,
 }).withTypeProvider<ZodTypeProvider>()
 
 app.register(fastifyCors, {
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 })
 
 app.setSerializerCompiler(serializerCompiler)
@@ -31,6 +34,8 @@ app.get('/health', async () => {
     timestamp: Date.now(),
     port: env.PORT,
     environment: process.env.NODE_ENV || 'development',
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
   }
 })
 
@@ -39,6 +44,7 @@ app.get('/', async () => {
   return {
     message: 'API Um Doce está funcionando!',
     version: '1.0.0',
+    timestamp: new Date().toISOString(),
     endpoints: {
       health: '/health',
       auth: '/auth',
@@ -58,6 +64,7 @@ app.setErrorHandler(async (error, request, reply) => {
   reply.status(500).send({
     error: 'Internal Server Error',
     message: error.message,
+    timestamp: new Date().toISOString(),
   })
 })
 
@@ -82,11 +89,12 @@ const start = async () => {
   try {
     await app.listen({
       port: env.PORT,
-      host: '0.0.0.0',
+      host: '0.0.0.0', // Importante: escutar em todas as interfaces
     })
     console.log(`🦅 Server is running on port ${env.PORT}`)
-    console.log(`📍 Health check: http://localhost:${env.PORT}/health`)
-    console.log(`🌐 API root: http://localhost:${env.PORT}/`)
+    console.log(`📍 Health check: http://0.0.0.0:${env.PORT}/health`)
+    console.log(`🌐 API root: http://0.0.0.0:${env.PORT}/`)
+    console.log(`🔗 External URL: https://api.umdoce.dev.br`)
   } catch (error) {
     console.error('Error starting server:', error)
     process.exit(1)

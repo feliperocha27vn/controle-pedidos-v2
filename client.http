@@ -1,13 +1,14 @@
 # Configuração para desenvolvimento local
-@baseUrl = http://localhost:3333
+# @baseUrl = http://localhost:3333
 
 # Configuração para produção (Coolify)
-# Substitua pela URL do seu projeto no Coolify
-# @baseUrl = https://seu-projeto.coolify.app
-# @baseUrl = https://api.seudominio.com
+@baseUrl = https://api.umdoce.dev.br
 
 ###Health Check
 GET {{baseUrl}}/health
+
+###Root endpoint (debug)
+GET {{baseUrl}}/
 
 ###Users
 
