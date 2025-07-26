@@ -1,6 +1,6 @@
 services:
   # =============================================================================
-  # PostgreSQL Database - Configuração otimizada para produção
+  # PostgreSQL Database - Configuração otimizada para Coolify
   # =============================================================================
   postgresql:
     image: postgres:17-alpine
@@ -9,7 +9,6 @@ services:
     # 🔒 PRESERVADO: Volume existente para manter dados
     volumes:
       - db:/var/lib/postgresql/data
-      - ./postgres-logs:/var/log/postgresql
     
     ports:
       - "5432:5432"
@@ -19,28 +18,22 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=adminpassword
       - POSTGRES_DB=controle_pedidos
-      # ⚡ CORRIGIDO: Manter configurações existentes para evitar warnings
-      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8 --data-checksums
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8
       - POSTGRES_HOST_AUTH_METHOD=md5
-      # ⚡ NOVO: Configurações de locale consistentes
       - LC_ALL=en_US.utf8
       - LANG=en_US.utf8
-    
-    # 🔒 PRESERVADO: Rede existente
-    networks:
-      - controle_pedidos_network
     
     # ⚡ OTIMIZADO: Resource limits para Coolify (2 vCPUs / 4GB RAM)
     deploy:
       resources:
         limits:
           cpus: '1.0'
-          memory: 1.5G
+          memory: 1G
         reservations:
           cpus: '0.5'
           memory: 512M
     
-    # ⚡ OTIMIZADO: Health check menos agressivo
+    # ⚡ OTIMIZADO: Health check robusto
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d controle_pedidos -h localhost"]
       interval: 15s
@@ -48,7 +41,6 @@ services:
       retries: 5
       start_period: 30s
     
-    # ⚡ OTIMIZADO: Restart policy
     restart: unless-stopped
     
     # 🔒 Security context
@@ -61,18 +53,14 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-        labels: "service=postgresql"
 
   # =============================================================================
-  # API Application - Configuração otimizada para Node.js
+  # API Application - Configuração otimizada para Coolify
   # =============================================================================
   api-um-doce:
     build:
       context: .
       dockerfile: Dockerfile
-      # Cache otimizado
-      cache_from:
-        - node:22.15-alpine3.20
     
     container_name: api_um_doce_container
     
@@ -94,44 +82,33 @@ services:
       - DB_NAME=controle_pedidos
       - DATABASE_URL=postgresql://admin:adminpassword@postgresql:5432/controle_pedidos
       - NODE_ENV=production
-      # ⚡ NOVO: Otimizações Node.js
-      - NODE_OPTIONS=--max-old-space-size=2048 --enable-source-maps
+      - NODE_OPTIONS=--max-old-space-size=1536 --enable-source-maps
       - TZ=America/Sao_Paulo
       - NPM_CONFIG_LOGLEVEL=warn
-      # ⚡ NOVO: Configurações para timeout em produção
-      - HTTP_TIMEOUT=30000
-      - KEEP_ALIVE_TIMEOUT=65000
-    
-    # 🔒 PRESERVADO: Rede existente
-    networks:
-      - controle_pedidos_network
     
     # ⚡ OTIMIZADO: Resource limits para aplicação Node.js
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: '1.5'
           memory: 2G
         reservations:
-          cpus: '0.25'
-          memory: 256M
+          cpus: '0.5'
+          memory: 512M
     
-    # ⚡ OTIMIZADO: Health check menos frequente para produção
-    # ⚡ OTIMIZADO: Health check mais robusto para Coolify
+    # ⚡ CRÍTICO: Health check com tempo adequado para Coolify
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3333/health || exit 1"]
-      interval: 15s
-      timeout: 5s
+      interval: 30s
+      timeout: 15s
       retries: 3
-      start_period: 30s
+      start_period: 90s  # ⚡ AUMENTADO: Tempo adequado para Node.js + Prisma
     
-    # ⚡ OTIMIZADO: Restart policy com delay
     restart: unless-stopped
     
     # 🔒 Security context
     security_opt:
       - no-new-privileges:true
-    read_only: false
     
     # 📊 Logging estruturado
     logging:
@@ -139,31 +116,36 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
-        labels: "service=api-um-doce"
     
-    # 🚀 Labels para Coolify/Traefik - OTIMIZADO PARA COOLIFY
+    # 🚀 Labels COMPLETAS para Coolify/Traefik
     labels:
+      # Habilitar Traefik
       - "traefik.enable=true"
+      
+      # Configuração do serviço
       - "traefik.http.services.api-um-doce.loadbalancer.server.port=3333"
-      - "traefik.http.routers.api-um-doce.rule=Host(`api.umdoce.dev.br`)"
-      - "traefik.http.routers.api-um-doce.tls=true"
-      - "traefik.http.routers.api-um-doce.tls.certresolver=letsencrypt"
-      # Coolify compatibility
-      - "coolify.managed=true"
-      - "coolify.type=application"
-      - "coolify.name=api-um-doce"
-      # Health check configuration
+      - "traefik.http.services.api-um-doce.loadbalancer.server.scheme=http"
+      
+      # Health check para load balancer
       - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.path=/health"
       - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.interval=30s"
       - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.timeout=10s"
-      # Network and routing
-      - "traefik.docker.network=coolify"
+      
+      # Configuração de roteamento para Coolify
+      - "traefik.http.routers.api-um-doce.rule=Host(`api.umdoce.dev.br`)"
+      - "traefik.http.routers.api-um-doce.entrypoints=websecure"
+      - "traefik.http.routers.api-um-doce.tls.certresolver=letsencrypt"
+      
+      # Labels para Coolify
+      - "coolify.managed=true"
+      - "coolify.type=application"
+      - "coolify.name=api-um-doce"
 
 # =============================================================================
-# Network Configuration - PRESERVADA configuração existente
+# Network Configuration - Otimizada para Coolify
 # =============================================================================
 networks:
-  controle_pedidos_network:
+  default:
     name: controle_pedidos_network
     driver: bridge
 
@@ -173,8 +155,4 @@ networks:
 volumes:
   # 🔒 PRESERVADO: Volume principal do banco de dados
   db:
-    driver: local
-  
-  # ⚡ NOVO: Volume para logs do PostgreSQL
-  postgres-logs:
     driver: local
