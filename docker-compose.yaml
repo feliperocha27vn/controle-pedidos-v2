@@ -117,12 +117,13 @@ services:
           memory: 256M
     
     # ⚡ OTIMIZADO: Health check menos frequente para produção
+    # ⚡ OTIMIZADO: Health check mais robusto para Coolify
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3333/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))\""]
-      interval: 30s
-      timeout: 15s
+      test: ["CMD-SHELL", "curl -f http://localhost:3333/health || exit 1"]
+      interval: 15s
+      timeout: 5s
       retries: 3
-      start_period: 60s
+      start_period: 30s
     
     # ⚡ OTIMIZADO: Restart policy com delay
     restart: unless-stopped
@@ -140,14 +141,22 @@ services:
         max-file: "5"
         labels: "service=api-um-doce"
     
-    # 🚀 Labels para Coolify/Traefik
+    # 🚀 Labels para Coolify/Traefik - SIMPLIFICADO
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api-um-doce.rule=Host(`api.umdoce.dev.br`)"
       - "traefik.http.services.api-um-doce.loadbalancer.server.port=3333"
+      - "traefik.http.routers.api-um-doce.rule=Host(`api.umdoce.dev.br`)"
       - "traefik.http.routers.api-um-doce.tls=true"
       - "traefik.http.routers.api-um-doce.tls.certresolver=letsencrypt"
+      # Coolify specific labels
       - "coolify.managed=true"
+      - "coolify.type=application"
+      - "coolify.name=api-um-doce"
+      # Timeout configurations
+      - "traefik.http.services.api-um-doce.loadbalancer.server.scheme=http"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.path=/health"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.interval=30s"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.timeout=10s"
 
 # =============================================================================
 # Network Configuration - PRESERVADA configuração existente
