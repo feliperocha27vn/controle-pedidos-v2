@@ -59,7 +59,7 @@ app.get('/', async () => {
 app.register(appRoutes)
 
 // Error handler
-app.setErrorHandler(async (error, request, reply) => {
+app.setErrorHandler(async (error, _, reply) => {
   console.error('Error:', error)
   reply.status(500).send({
     error: 'Internal Server Error',
@@ -101,4 +101,5 @@ const start = async () => {
   }
 }
 
+// Iniciar o servidor
 start()
