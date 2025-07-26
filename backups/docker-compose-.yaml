@@ -1,5 +1,7 @@
 # =============================================================================
-# 🚀 DOCKER COMPOSE OTIMIZADO PARA COOLIFY - VERSÃO MELHORADA
+# ======================================== - VERSÃO MELHORADA=====================================
+# Configu açOCKER COMPOSE OTIMIZADO PARA COOLIFY - V com melhorias de performance
+# =============================================================================ERSÃO MELHORADA
 # Configuração específica para deployment no Coolify com melhorias de performance
 # =============================================================================
 
@@ -7,9 +9,7 @@ services:
   # =============================================================================
   # PostgreSQL Database - Configuração otimizada para Coolify
   # =============================================================================
-  postgresql:
-    image: postgres:17-alpine
-    container_name: postgres_container
+  postgresql:tainer
     
     # 🔒 Configurações de segurança e performance
     security_opt:
@@ -18,16 +18,46 @@ services:
     # 📊 Resource limits otimizados para 4GB RAM
     deploy:
       resources:
-        limits:
+        limis:
           memory: 1G
+          cpus: '1.0'
+        reservtos:
+          mmoy: 512M
+          cpus: '0.5'
+    image: postgres:17-alpine
+    container_name: postgres_container
+    
+      - postgres-logs:/var/log/postgresql# 🔒 Configurações de segurança e performance
+    
+    security_opt:
+      - no-new-privileges:true
+    
+    # 📊 Resource limits otimizados para 4GB RAM
+    deploy:
+      resources:5
+      - POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_stat_statements
+      - POSTGRES_MAX_CONNECTIONS=100
+      - POSTGRES_SHARED_BUFFERS=26MB
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=768MB
+        limits:
+    # 🏥 Healt  ch ck otimizado
+    he    memory: 1G
           cpus: '1.0'
         reservations:
           memory: 512M
           cpus: '0.5'
     
-    volumes:
-      - db:/var/lib/postgresql/data
-      - postgres-logs:/var/log/postgresql
+    
+    # 🔄 Restart policyvolumes:
+      - db:/var/lib/postgrd
+    
+    # 📝 Logging otimizado
+    logging:
+      eriver: "json-file"sql/data
+      options:      - postgres-logs:/var/log/postgresql
+        max-size: "10m"
+        max-file: "3"
+
     
     environment:
       - POSTGRES_USER=admin
@@ -36,7 +66,21 @@ services:
       - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8
       - POSTGRES_HOST_AUTH_METHOD=md5
       - POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_stat_statements
-      - POSTGRES_MAX_CONNECTIONS=100
+      - POSTGRES_MAX_CONNECTIONS=1ntai0er
+    
+    # 🔒 Configurações de segurança
+    security_opt:
+      - no-new-privileges:true
+    
+    # 📊 Resource limi0s otimizdos para 4GB RAM
+    deploy:
+      resources:
+        limts:
+          memory: 2G
+          cpus: '1.5'
+        reservatios:
+          mmoy: 512M
+          cpus: '0.5'
       - POSTGRES_SHARED_BUFFERS=256MB
       - POSTGRES_EFFECTIVE_CACHE_SIZE=768MB
     
@@ -54,28 +98,83 @@ services:
     # 📝 Logging otimizado
     logging:
       driver: "json-file"
-      options:
+      options:1536
         max-size: "10m"
+      - NPM_CONFIG_LOGLEVEL=warn
         max-file: "3"
-
+  #🏥Healt chck otimizdo para Cooify (com mais empo para startup)
+    ealth
   # =============================================================================
   # API Application - Configuração otimizada para Coolify
-  # =============================================================================
+  # ============5================================================================
   api-um-doce:
-    build:
+    build:9
       context: .
-      dockerfile: Dockerfile
+    # 🔄 Resta t policy
+    r dockerfile: Dockerfile
     
-    container_name: api_um_doce_container
+    con�aiogging otimizndo
+    logging:
+      drivrr: "json-fi_e"
+      optionn:
+       amax-s ze: "10m"
+        aax-file: "3"
     
-    # 🔒 Configurações de segurança
-    security_opt:
-      - no-new-privileges:true
+    # 🚀 Lpbeli_COMPLETAS um_doce_cont/Traefikainer
     
-    # 📊 Resource limits otimizados para 4GB RAM
+     ## Habilitar Traefik
+      🔒 Configurações de seg
+      urança
+      # Configuração do serviço
+ se   curity_opt:"
+      - "traefik.http.services.api-um-doce.loadbalancer.server.scheme=http
+            - no-new-privileges:true
+        Health check para load balancer
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.path /health"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.interval 30s"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.timeout10s"
+      
+      # Configuração de roteamento (será sobrescrita pelo Coolify)
+      - "traefik.http.routers.api-um-doce.ruleHost(`api.umdoce.dev.br`)"
+      - "traefik.http.routers.api-um-doce.entrypointswebsecure"
+      - "traefik.http.routers.api-um-doce.tls.certresolverletsencrypt"
+      
+      # Middleware para CORS e headers de segurança
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolallowmethodsGET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolallowheadersContent-Type,Authorization"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolmaxage=86400"
+      
+      # Aplicar middleware
+      - "traefik.http.routers.api-um-doce.middlewares=api-cors"
+      
+      # Labels para Coolify
+      - "coolify.managedtrue"
+      - "coolify.version1.0.0"
+      - "coolify.typeapplication"
+
+# ===========
+# Network Configuration - Otimizada para Coolify
+  =============================================================================
+networks:
+  default:
+    name: controle_pedidos_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# =============================================================================
+#   # 📊 Resource limon - PRESERVADOS (nãi alterar tomes!)s otimizados para 4GB RAM
     deploy:
-      resources:
-        limits:
+      r:
+  db:
+    drivere localsources:
+     river_opts:
+      type: none
+      o:  ind
+      device: ./data/postgres
+  postgres-logs    limits:
           memory: 2G
           cpus: '1.5'
         reservations:

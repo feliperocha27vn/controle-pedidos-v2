@@ -1,8 +1,8 @@
 # Configuração para desenvolvimento local
-# @baseUrl = http://localhost:3333
+@baseUrl = http://localhost:3333
 
 # Configuração para produção (Coolify)
-@baseUrl = https://api.umdoce.dev.br
+# @baseUrl = https://api.umdoce.dev.br
 
 ###Health Check
 GET {{baseUrl}}/health
@@ -70,7 +70,7 @@ content-type: application/json
 
 ### Get Orders
 
-GET {{baseUrl}}/orders
+GET {{baseUrl}}/orders/search?search=felipe
 
 ### Get Order by ID
 

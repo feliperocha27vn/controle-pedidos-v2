@@ -1,33 +1,78 @@
-version: '3.8'
 services:
+  # =============================================================================
+  # PostgreSQL Database - Configuração otimizada para Coolify
+  # =============================================================================
   postgresql:
-    image: postgres:17
+    image: postgres:17-alpine
     container_name: postgres_container
+    
+    # 🔒 PRESERVADO: Volume existente para manter dados
     volumes:
       - db:/var/lib/postgresql/data
+    
     ports:
       - "5432:5432"
+    
+    # 🔒 PRESERVADO: Configurações de ambiente existentes
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=adminpassword
       - POSTGRES_DB=controle_pedidos
-    networks:
-      - controle_pedidos_network
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8
+      - POSTGRES_HOST_AUTH_METHOD=md5
+      - LC_ALL=en_US.utf8
+      - LANG=en_US.utf8
+    
+    # ⚡ OTIMIZADO: Resource limits para Coolify (2 vCPUs / 4GB RAM)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # ⚡ OTIMIZADO: Health check robusto
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d controle_pedidos"]
-      interval: 5s
-      timeout: 5s
+      test: ["CMD-SHELL", "pg_isready -U admin -d controle_pedidos -h localhost"]
+      interval: 15s
+      timeout: 10s
       retries: 5
-      start_period: 10s
+      start_period: 30s
+    
+    restart: unless-stopped
+    
+    # 🔒 Security context
+    security_opt:
+      - no-new-privileges:true
+    
+    # 📊 Logging estruturado
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
+  # =============================================================================
+  # API Application - Configuração otimizada para Coolify
+  # =============================================================================
   api-um-doce:
     build:
       context: .
+      dockerfile: Dockerfile
+    
+    container_name: api_um_doce_container
+    
+    # 🔗 Dependência com health check
     depends_on:
       postgresql:
         condition: service_healthy
+    
     ports:
       - "3333:3333"
+    
+    # 🔒 PRESERVADO: Todas as variáveis de ambiente existentes
     environment:
       - PORT=3333
       - DB_HOST=postgresql
@@ -37,20 +82,77 @@ services:
       - DB_NAME=controle_pedidos
       - DATABASE_URL=postgresql://admin:adminpassword@postgresql:5432/controle_pedidos
       - NODE_ENV=production
-    networks:
-      - controle_pedidos_network
+      - NODE_OPTIONS=--max-old-space-size=1536 --enable-source-maps
+      - TZ=America/Sao_Paulo
+      - NPM_CONFIG_LOGLEVEL=warn
+    
+    # ⚡ OTIMIZADO: Resource limits para aplicação Node.js
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # ⚡ CRÍTICO: Health check com tempo adequado para Coolify
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3333/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))\""]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      test: ["CMD-SHELL", "curl -f http://localhost:3333/health || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 90s  # ⚡ AUMENTADO: Tempo adequado para Node.js + Prisma
+    
     restart: unless-stopped
+    
+    # 🔒 Security context
+    security_opt:
+      - no-new-privileges:true
+    
+    # 📊 Logging estruturado
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    
+    # 🚀 Labels COMPLETAS para Coolify/Traefik
+    labels:
+      # Habilitar Traefik
+      - "traefik.enable=true"
+      
+      # Configuração do serviço
+      - "traefik.http.services.api-um-doce.loadbalancer.server.port=3333"
+      - "traefik.http.services.api-um-doce.loadbalancer.server.scheme=http"
+      
+      # Health check para load balancer
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.path=/health"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.interval=30s"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.timeout=10s"
+      
+      # Configuração de roteamento para Coolify
+      - "traefik.http.routers.api-um-doce.rule=Host(`api.umdoce.dev.br`)"
+      - "traefik.http.routers.api-um-doce.entrypoints=websecure"
+      - "traefik.http.routers.api-um-doce.tls.certresolver=letsencrypt"
+      
+      # Labels para Coolify
+      - "coolify.managed=true"
+      - "coolify.type=application"
+      - "coolify.name=api-um-doce"
 
+# =============================================================================
+# Network Configuration - Otimizada para Coolify
+# =============================================================================
 networks:
-  controle_pedidos_network:
+  default:
     name: controle_pedidos_network
     driver: bridge
 
+# =============================================================================
+# Volumes Configuration - PRESERVADO volume existente
+# =============================================================================
 volumes:
+  # 🔒 PRESERVADO: Volume principal do banco de dados
   db:
+    driver: local

@@ -4,7 +4,7 @@ import { changeOrderStatus } from './routes/change-order-status.ts'
 import { createNewOrder } from './routes/create-new-order.ts'
 import { createNewRecipe } from './routes/create-new-recipe.ts'
 import { fetchOrdersPagination } from './routes/fetch-order-pagination.ts'
-import { fetchOrders } from './routes/fetch-orders.ts'
+import { fetchOrdersByName } from './routes/fetch-orders-by-name.ts'
 import { fetchRecipes } from './routes/fetch-recipes.ts'
 import { getOrderById } from './routes/get-order-by-id.ts'
 import { register } from './routes/register-user.ts'
@@ -21,7 +21,7 @@ export function appRoutes(app: FastifyInstance) {
   app.register(fetchRecipes)
   // Orders
   app.register(createNewOrder)
-  app.register(fetchOrders)
+  app.register(fetchOrdersByName)
   app.register(totalOrders)
   app.register(totalOrdersPending)
   app.register(totalOrdersPaid)
