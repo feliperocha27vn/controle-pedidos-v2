@@ -1,0 +1,277 @@
+# =============================================================================
+# ======================================== - VERSÃO MELHORADA=====================================
+# Configu açOCKER COMPOSE OTIMIZADO PARA COOLIFY - V com melhorias de performance
+# =============================================================================ERSÃO MELHORADA
+# Configuração específica para deployment no Coolify com melhorias de performance
+# =============================================================================
+
+services:
+  # =============================================================================
+  # PostgreSQL Database - Configuração otimizada para Coolify
+  # =============================================================================
+  postgresql:tainer
+    
+    # 🔒 Configurações de segurança e performance
+    security_opt:
+      - no-new-privileges:true
+    
+    # 📊 Resource limits otimizados para 4GB RAM
+    deploy:
+      resources:
+        limis:
+          memory: 1G
+          cpus: '1.0'
+        reservtos:
+          mmoy: 512M
+          cpus: '0.5'
+    image: postgres:17-alpine
+    container_name: postgres_container
+    
+      - postgres-logs:/var/log/postgresql# 🔒 Configurações de segurança e performance
+    
+    security_opt:
+      - no-new-privileges:true
+    
+    # 📊 Resource limits otimizados para 4GB RAM
+    deploy:
+      resources:5
+      - POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_stat_statements
+      - POSTGRES_MAX_CONNECTIONS=100
+      - POSTGRES_SHARED_BUFFERS=26MB
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=768MB
+        limits:
+    # 🏥 Healt  ch ck otimizado
+    he    memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    
+    # 🔄 Restart policyvolumes:
+      - db:/var/lib/postgrd
+    
+    # 📝 Logging otimizado
+    logging:
+      eriver: "json-file"sql/data
+      options:      - postgres-logs:/var/log/postgresql
+        max-size: "10m"
+        max-file: "3"
+
+    
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpassword
+      - POSTGRES_DB=controle_pedidos
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8
+      - POSTGRES_HOST_AUTH_METHOD=md5
+      - POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_stat_statements
+      - POSTGRES_MAX_CONNECTIONS=1ntai0er
+    
+    # 🔒 Configurações de segurança
+    security_opt:
+      - no-new-privileges:true
+    
+    # 📊 Resource limi0s otimizdos para 4GB RAM
+    deploy:
+      resources:
+        limts:
+          memory: 2G
+          cpus: '1.5'
+        reservatios:
+          mmoy: 512M
+          cpus: '0.5'
+      - POSTGRES_SHARED_BUFFERS=256MB
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=768MB
+    
+    # 🏥 Health check otimizado
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d controle_pedidos -h localhost"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    
+    # 🔄 Restart policy
+    restart: unless-stopped
+    
+    # 📝 Logging otimizado
+    logging:
+      driver: "json-file"
+      options:1536
+        max-size: "10m"
+      - NPM_CONFIG_LOGLEVEL=warn
+        max-file: "3"
+  #🏥Healt chck otimizdo para Cooify (com mais empo para startup)
+    ealth
+  # =============================================================================
+  # API Application - Configuração otimizada para Coolify
+  # ============5================================================================
+  api-um-doce:
+    build:9
+      context: .
+    # 🔄 Resta t policy
+    r dockerfile: Dockerfile
+    
+    con�aiogging otimizndo
+    logging:
+      drivrr: "json-fi_e"
+      optionn:
+       amax-s ze: "10m"
+        aax-file: "3"
+    
+    # 🚀 Lpbeli_COMPLETAS um_doce_cont/Traefikainer
+    
+     ## Habilitar Traefik
+      🔒 Configurações de seg
+      urança
+      # Configuração do serviço
+ se   curity_opt:"
+      - "traefik.http.services.api-um-doce.loadbalancer.server.scheme=http
+            - no-new-privileges:true
+        Health check para load balancer
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.path /health"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.interval 30s"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.timeout10s"
+      
+      # Configuração de roteamento (será sobrescrita pelo Coolify)
+      - "traefik.http.routers.api-um-doce.ruleHost(`api.umdoce.dev.br`)"
+      - "traefik.http.routers.api-um-doce.entrypointswebsecure"
+      - "traefik.http.routers.api-um-doce.tls.certresolverletsencrypt"
+      
+      # Middleware para CORS e headers de segurança
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolallowmethodsGET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolallowheadersContent-Type,Authorization"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolmaxage=86400"
+      
+      # Aplicar middleware
+      - "traefik.http.routers.api-um-doce.middlewares=api-cors"
+      
+      # Labels para Coolify
+      - "coolify.managedtrue"
+      - "coolify.version1.0.0"
+      - "coolify.typeapplication"
+
+# ===========
+# Network Configuration - Otimizada para Coolify
+  =============================================================================
+networks:
+  default:
+    name: controle_pedidos_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# =============================================================================
+#   # 📊 Resource limon - PRESERVADOS (nãi alterar tomes!)s otimizados para 4GB RAM
+    deploy:
+      r:
+  db:
+    drivere localsources:
+     river_opts:
+      type: none
+      o:  ind
+      device: ./data/postgres
+  postgres-logs    limits:
+          memory: 2G
+          cpus: '1.5'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    
+    ports:
+      - "3333:3333"
+    
+    environment:
+      - PORT=3333
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_USER=admin
+      - DB_PASSWORD=adminpassword
+      - DB_NAME=controle_pedidos
+      - DATABASE_URL=postgresql://admin:adminpassword@postgresql:5432/controle_pedidos
+      - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=1536
+      - TZ=America/Sao_Paulo
+      - NPM_CONFIG_LOGLEVEL=warn
+    
+    # 🏥 Health check otimizado para Coolify (com mais tempo para startup)
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3333/health || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 90s
+    
+    # 🔄 Restart policy
+    restart: unless-stopped
+    
+    # 📝 Logging otimizado
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # 🚀 Labels COMPLETAS para Coolify/Traefik
+    labels:
+      # Habilitar Traefik
+      - "traefik.enable=true"
+      
+      # Configuração do serviço
+      - "traefik.http.services.api-um-doce.loadbalancer.server.port=3333"
+      - "traefik.http.services.api-um-doce.loadbalancer.server.scheme=http"
+      
+      # Health check para load balancer
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.path=/health"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.interval=30s"
+      - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.timeout=10s"
+      
+      # Configuração de roteamento (será sobrescrita pelo Coolify)
+      - "traefik.http.routers.api-um-doce.rule=Host(`api.umdoce.dev.br`)"
+      - "traefik.http.routers.api-um-doce.entrypoints=websecure"
+      - "traefik.http.routers.api-um-doce.tls.certresolver=letsencrypt"
+      
+      # Middleware para CORS e headers de segurança
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolallowheaders=Content-Type,Authorization"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolalloworigin=*"
+      - "traefik.http.middlewares.api-cors.headers.accesscontrolmaxage=86400"
+      
+      # Aplicar middleware
+      - "traefik.http.routers.api-um-doce.middlewares=api-cors"
+      
+      # Labels para Coolify
+      - "coolify.managed=true"
+      - "coolify.version=1.0.0"
+      - "coolify.type=application"
+
+# =============================================================================
+# Network Configuration - Otimizada para Coolify
+# =============================================================================
+networks:
+  default:
+    name: controle_pedidos_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# =============================================================================
+# Volumes Configuration - PRESERVADOS (não alterar nomes!)
+# =============================================================================
+volumes:
+  db:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/postgres
+  postgres-logs:
+    driver: local

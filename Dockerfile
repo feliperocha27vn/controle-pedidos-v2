@@ -1,6 +1,6 @@
 # =============================================================================
-# DOCKERFILE OTIMIZADO - API UM DOCE
-# Otimizado para Coolify com 2 vCPUs / 4GB RAM / 80GB disco
+# DOCKERFILE OTIMIZADO PARA COOLIFY - API UM DOCE
+# Versão melhorada com foco em performance, segurança e compatibilidade
 # =============================================================================
 
 # Build stage - Otimizado para cache de layers
@@ -10,11 +10,12 @@ FROM node:22.15-alpine3.20 AS build
 RUN apk add --no-cache \
     dumb-init \
     tzdata \
-    && cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime \
-    && echo "America/Sao_Paulo" > /etc/timezone \
-    && apk del tzdata
+    curl \
+    && rm -rf /var/cache/apk/*
 
-# Configurar diretório de trabalho
+# Configurar timezone
+ENV TZ=America/Sao_Paulo
+
 WORKDIR /usr/src
 
 # Copiar apenas arquivos de dependências primeiro (melhor cache)
@@ -25,10 +26,11 @@ RUN npm ci \
     --prefer-offline \
     --no-audit \
     --no-fund \
-    --ignore-scripts \
+    --silent \
+    --production=false \
     && npm cache clean --force
 
-# Copiar código fonte e schema do Prisma
+# Copiar código fonte
 COPY src ./src
 COPY prisma ./prisma
 
@@ -45,16 +47,16 @@ RUN npm prune --production \
 # =============================================================================
 FROM node:22.15-alpine3.20
 
-# Instalar dependências mínimas do sistema
+# Instalar dependências mínimas do sistema + curl para health checks
 RUN apk add --no-cache \
     dumb-init \
     tzdata \
-    tini \
     curl \
-    && cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime \
-    && echo "America/Sao_Paulo" > /etc/timezone \
-    && apk del tzdata \
+    tini \
     && rm -rf /var/cache/apk/*
+
+# Configurar timezone
+ENV TZ=America/Sao_Paulo
 
 # Criar usuário não-root com configurações de segurança
 RUN addgroup -g 1001 -S nodejs \
@@ -62,7 +64,6 @@ RUN addgroup -g 1001 -S nodejs \
     && mkdir -p /usr/src \
     && chown -R nodejs:nodejs /usr/src
 
-# Configurar diretório de trabalho
 WORKDIR /usr/src
 
 # Copiar aplicação do build stage com ownership correto
@@ -79,24 +80,24 @@ RUN chmod +x start.sh
 ENV NODE_ENV=production \
     NODE_OPTIONS="--max-old-space-size=3072 --enable-source-maps" \
     NPM_CONFIG_LOGLEVEL=warn \
-    NPM_CONFIG_PROGRESS=false
+    PORT=3333
 
-# Mudar para usuário não-root
 USER nodejs
 
 # Expor porta da aplicação
 EXPOSE 3333
 
-# Health check otimizado para produção (menos frequente)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3333/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+# Health check otimizado para Coolify (mais tempo para startup)
+HEALTHCHECK --interval=30s --timeout=15s --start-period=90s --retries=3 \
+    CMD curl -f http://localhost:3333/health || exit 1
 
-# Labels para melhor organização e Coolify
+# Labels otimizadas para Coolify
 LABEL maintainer="DevOps Team" \
       version="1.0.0" \
       description="API Um Doce - Optimized for Coolify" \
-      org.opencontainers.image.source="https://github.com/your-repo"
+      coolify.managed="true" \
+      traefik.enable="true"
 
-# Usar tini como init system (alternativa ao dumb-init, mais leve)
+# Usar tini como init system para melhor signal handling
 ENTRYPOINT ["tini", "--"]
 CMD ["./start.sh"]

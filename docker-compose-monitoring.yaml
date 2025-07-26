@@ -1,0 +1,75 @@
+# =============================================================================
+# 📊 DOCKER COMPOSE COM MONITORAMENTO - OPCIONAL
+# Adicione este arquivo se quiser monitoramento completo
+# =============================================================================
+
+services:
+  # Serviços principais (mesmo do docker-compose-coolify.yaml)
+  postgresql:
+    extends:
+      file: docker-compose-coolify.yaml
+      service: postgresql
+
+  api-um-doce:
+    extends:
+      file: docker-compose-coolify.yaml
+      service: api-um-doce
+
+  # =============================================================================
+  # Prometheus - Métricas
+  # =============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.umdoce.dev.br`)"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  # =============================================================================
+  # Grafana - Dashboards
+  # =============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.umdoce.dev.br`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+volumes:
+  db:
+    driver: local
+  postgres-logs:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  default:
+    name: controle_pedidos_network
+    driver: bridge

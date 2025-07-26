@@ -141,22 +141,23 @@ services:
         max-file: "5"
         labels: "service=api-um-doce"
     
-    # 🚀 Labels para Coolify/Traefik - SIMPLIFICADO
+    # 🚀 Labels para Coolify/Traefik - OTIMIZADO PARA COOLIFY
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.api-um-doce.loadbalancer.server.port=3333"
       - "traefik.http.routers.api-um-doce.rule=Host(`api.umdoce.dev.br`)"
       - "traefik.http.routers.api-um-doce.tls=true"
       - "traefik.http.routers.api-um-doce.tls.certresolver=letsencrypt"
-      # Coolify specific labels
+      # Coolify compatibility
       - "coolify.managed=true"
       - "coolify.type=application"
       - "coolify.name=api-um-doce"
-      # Timeout configurations
-      - "traefik.http.services.api-um-doce.loadbalancer.server.scheme=http"
+      # Health check configuration
       - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.path=/health"
       - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.interval=30s"
       - "traefik.http.services.api-um-doce.loadbalancer.healthcheck.timeout=10s"
+      # Network and routing
+      - "traefik.docker.network=coolify"
 
 # =============================================================================
 # Network Configuration - PRESERVADA configuração existente
