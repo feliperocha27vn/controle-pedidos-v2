@@ -58,14 +58,10 @@ POST {{baseUrl}}/orders
 content-type: application/json
 
 {
-    "customerName": "João Silva",
-    "customerPhone": "(11) 99999-9999",
-    "items": [
-        {
-            "recipeId": "recipe-id-here",
-            "quantity": 2
-        }
-    ]
+    "idRecipe": "e030123c-ff85-4be6-b36b-03ea05d06253",
+    "customerName": "Fjohn Doe",
+    "quantity": 1,
+    "status": "pending"
 }
 
 ### Get Orders
@@ -99,4 +95,4 @@ GET {{baseUrl}}/orders/total/paid
 
 ### Get Orders with Pagination
 
-GET {{baseUrl}}/orders/pagination?page=1&limit=10
+GET {{baseUrl}}/orders
