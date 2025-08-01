@@ -15,12 +15,6 @@ export const deleteRecipe: FastifyPluginAsyncZod = async app => {
     async (request, reply) => {
       const { idRecipe } = request.params
 
-      await prisma.recipesOrder.deleteMany({
-        where: {
-          recipesId: idRecipe,
-        },
-      })
-
       await prisma.recipes.delete({
         where: { id: idRecipe },
       })
