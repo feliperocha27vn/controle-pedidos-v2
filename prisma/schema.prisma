@@ -17,12 +17,11 @@ model Users {
 }
 
 model Recipes {
-  id           String         @id @default(uuid())
-  title        String
-  price        Decimal
-  created      DateTime       @default(now())
-  Orders       Orders[]
-  RecipesOrder RecipesOrder[]
+  id      String   @id @default(uuid())
+  title   String
+  price   Decimal
+  created DateTime @default(now())
+  Orders  Orders[]
 
   @@map("recipes")
 }
@@ -37,21 +36,7 @@ model Orders {
   recipe    Recipes @relation(fields: [recipesId], references: [id])
   recipesId String  @map("recipes_id")
 
-  createdAt    DateTime       @default(now())
-  RecipesOrder RecipesOrder[]
+  createdAt DateTime @default(now())
 
   @@map("orders")
-}
-
-model RecipesOrder {
-  id       String @id @default(uuid())
-  quantity Int
-
-  order    Orders @relation(fields: [ordersId], references: [id], onDelete: Cascade)
-  ordersId String @map("orders_id")
-
-  recipe    Recipes @relation(fields: [recipesId], references: [id], onDelete: Cascade)
-  recipesId String  @map("recipe_id")
-
-  @@map("recipes_order")
 }
