@@ -96,3 +96,6 @@ GET {{baseUrl}}/orders/total/paid
 ### Get Orders with Pagination
 
 GET {{baseUrl}}/orders
+
+### Fetch Previous Orders Last Week
+GET {{baseUrl}}/orders/lastWeek
