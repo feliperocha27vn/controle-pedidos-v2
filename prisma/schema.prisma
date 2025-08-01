@@ -47,10 +47,10 @@ model RecipesOrder {
   id       String @id @default(uuid())
   quantity Int
 
-  order    Orders @relation(fields: [ordersId], references: [id])
+  order    Orders @relation(fields: [ordersId], references: [id], onDelete: Cascade)
   ordersId String @map("orders_id")
 
-  recipe    Recipes @relation(fields: [recipesId], references: [id])
+  recipe    Recipes @relation(fields: [recipesId], references: [id], onDelete: Cascade)
   recipesId String  @map("recipe_id")
 
   @@map("recipes_order")
