@@ -15,7 +15,10 @@ export const deleteRecipe: FastifyPluginAsyncZod = async app => {
     async (request, reply) => {
       const { idRecipe } = request.params
 
-      await prisma.recipes.delete({
+      await prisma.recipes.update({
+        data: {
+          isActivite: false,
+        },
         where: { id: idRecipe },
       })
 

@@ -17,11 +17,12 @@ model Users {
 }
 
 model Recipes {
-  id      String   @id @default(uuid())
-  title   String
-  price   Decimal
-  created DateTime @default(now())
-  Orders  Orders[]
+  id         String   @id @default(uuid())
+  title      String
+  price      Decimal
+  created    DateTime @default(now())
+  isActivite Boolean  @default(true)
+  Orders     Orders[]
 
   @@map("recipes")
 }
