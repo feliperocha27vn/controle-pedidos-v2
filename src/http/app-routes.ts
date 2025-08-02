@@ -6,6 +6,7 @@ import { createNewRecipe } from './routes/create-new-recipe.ts'
 import { deleteRecipe } from './routes/delete-recipe.ts'
 import { fetchOrdersPagination } from './routes/fetch-order-pagination.ts'
 import { fetchOrdersByName } from './routes/fetch-orders-by-name.ts'
+import { fetchOrdersPending } from './routes/fetch-orders-pending.ts'
 import { fetchPreviousOrdersLastWeek } from './routes/fetch-previous-orders-last-week.ts'
 import { fetchRecipes } from './routes/fetch-recipes.ts'
 import { getOrderById } from './routes/get-order-by-id.ts'
@@ -36,4 +37,5 @@ export function appRoutes(app: FastifyInstance) {
   app.register(getOrderById)
   app.register(fetchOrdersPagination)
   app.register(fetchPreviousOrdersLastWeek)
+  app.register(fetchOrdersPending)
 }

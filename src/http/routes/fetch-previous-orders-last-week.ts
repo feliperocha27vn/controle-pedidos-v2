@@ -2,6 +2,11 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { prisma } from '../../lib/prisma.ts'
 import { getPreviousWeekRange } from '../../utils/get-previous-week-range.ts'
 
+interface OrdersByDay {
+  day: string
+  count: number
+}
+
 export const fetchPreviousOrdersLastWeek: FastifyPluginAsyncZod = async app => {
   app.get('/orders/lastWeek', async (_, reply) => {
     const { start, end } = getPreviousWeekRange()
@@ -14,7 +19,7 @@ export const fetchPreviousOrdersLastWeek: FastifyPluginAsyncZod = async app => {
         ORDER BY day;
     `
 
-    const ordersByDay = ordersByDayRaw.map((item: any) => ({
+    const ordersByDay = ordersByDayRaw.map((item: OrdersByDay) => ({
       day: item.day,
       count: Number(item.count),
     }))
