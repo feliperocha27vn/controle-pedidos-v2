@@ -99,3 +99,6 @@ GET {{baseUrl}}/orders
 
 ### Fetch Previous Orders Last Week
 GET {{baseUrl}}/orders/lastWeek
+
+###
+GET {{baseUrl}}/orders-by-date?date=2025-07-29

@@ -4,6 +4,7 @@ import { changeOrderStatus } from './routes/change-order-status.ts'
 import { createNewOrder } from './routes/create-new-order.ts'
 import { createNewRecipe } from './routes/create-new-recipe.ts'
 import { deleteRecipe } from './routes/delete-recipe.ts'
+import { fetchOrderByDate } from './routes/fetch-order-by-date.ts'
 import { fetchOrdersPagination } from './routes/fetch-order-pagination.ts'
 import { fetchOrdersByName } from './routes/fetch-orders-by-name.ts'
 import { fetchOrdersPending } from './routes/fetch-orders-pending.ts'
@@ -38,4 +39,5 @@ export function appRoutes(app: FastifyInstance) {
   app.register(fetchOrdersPagination)
   app.register(fetchPreviousOrdersLastWeek)
   app.register(fetchOrdersPending)
+  app.register(fetchOrderByDate)
 }
