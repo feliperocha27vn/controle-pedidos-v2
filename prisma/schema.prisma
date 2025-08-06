@@ -28,11 +28,13 @@ model Recipes {
 }
 
 model Orders {
-  id           String  @id @default(uuid())
-  customerName String  @map("customer_name")
+  id           String    @id @default(uuid())
+  customerName String    @map("customer_name")
   quantity     Int
   totalAmount  Decimal
-  status       String  @default("pending")
+  status       String    @default("pending")
+  isDelivered  Boolean   @default(true)
+  deliveryDate DateTime? @map("delivery_date")
 
   recipe    Recipes @relation(fields: [recipesId], references: [id])
   recipesId String  @map("recipes_id")

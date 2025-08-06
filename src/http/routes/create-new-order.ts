@@ -12,11 +12,20 @@ export const createNewOrder: FastifyPluginAsyncZod = async app => {
           customerName: z.string(),
           quantity: z.coerce.number(),
           status: z.enum(['pending', 'paid']),
+          isDelivered: z.boolean(),
+          deliveryDate: z.coerce.date(),
         }),
       },
     },
     async (request, reply) => {
-      const { idRecipe, customerName, quantity, status } = request.body
+      const {
+        idRecipe,
+        customerName,
+        quantity,
+        status,
+        isDelivered,
+        deliveryDate,
+      } = request.body
 
       const recipe = await prisma.recipes.findUniqueOrThrow({
         where: {
@@ -31,6 +40,8 @@ export const createNewOrder: FastifyPluginAsyncZod = async app => {
           totalAmount: recipe.price.mul(quantity),
           status,
           recipesId: idRecipe,
+          isDelivered,
+          deliveryDate,
         },
       })
 

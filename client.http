@@ -59,9 +59,11 @@ content-type: application/json
 
 {
     "idRecipe": "e030123c-ff85-4be6-b36b-03ea05d06253",
-    "customerName": "Fjohn Doe",
-    "quantity": 1,
-    "status": "pending"
+    "customerName": "John Doe",
+    "quantity": 2,
+    "status": "pending",
+    "isDelivered": false,
+    "deliveryDate": "2025-08-05"
 }
 
 ### Get Orders
@@ -102,3 +104,5 @@ GET {{baseUrl}}/orders/lastWeek
 
 ###
 GET {{baseUrl}}/orders-by-date?date=2025-07-29
+###
+GET {{baseUrl}}/orders/delivery/by-date?date=2025-08-04
