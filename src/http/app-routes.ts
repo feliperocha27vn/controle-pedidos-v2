@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { authentication } from './routes/authentication.ts'
 import { changeOrderStatus } from './routes/change-order-status.ts'
+import { changeOrderDeliveryStatus } from './routes/change-status-delivery.ts'
 import { createNewOrder } from './routes/create-new-order.ts'
 import { createNewRecipe } from './routes/create-new-recipe.ts'
 import { deleteRecipe } from './routes/delete-recipe.ts'
@@ -44,4 +45,5 @@ export function appRoutes(app: FastifyInstance) {
   app.register(fetchOrderByDate)
   app.register(fetchOrdersByDelivery)
   app.register(fetchOrdersDeliveryByDate)
+  app.register(changeOrderDeliveryStatus)
 }

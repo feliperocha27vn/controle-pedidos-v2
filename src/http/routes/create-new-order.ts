@@ -12,7 +12,7 @@ export const createNewOrder: FastifyPluginAsyncZod = async app => {
           customerName: z.string(),
           quantity: z.coerce.number(),
           status: z.enum(['pending', 'paid']),
-          isDelivered: z.boolean(),
+          isDelivered: z.boolean().default(false),
           deliveryDate: z.coerce.date(),
         }),
       },
